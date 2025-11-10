@@ -1,8 +1,8 @@
 name: Scrape and Format Data
 
 on:
-  # schedule:
-  #   - cron: "0 23 * * *"  # Daily at 11 PM UTC (adjust as needed)
+  schedule:
+    - cron: "0 2 * * *" # Daily at 2 AM UTC (~9 PM ET, ~6 PM PT)
   workflow_dispatch:
     inputs:
       use-scrape-cache:
@@ -15,7 +15,7 @@ on:
         default: false
 
 env:
-  STATE_CODE: in # ⚠️ UPDATE THIS: Change to your state code (e.g., wy, usa, il, tx)
+  STATE_CODE: in # ⚠️ UPDATE THIS: Change to your state code (e.g., in, dc, va)
 
 jobs:
   scrape:
@@ -36,11 +36,12 @@ jobs:
 
       - name: Run scraper action
         id: scrape
-        uses: windy-civi/toolkit/actions/scrape@main
+        uses: windy-civi/toolkit/actions/scrape@feat/api-key-support # ⚠️ TESTING: Change to @main after testing
         with:
           state: ${{ env.STATE_CODE }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           use-scrape-cache: ${{ inputs.use-scrape-cache }}
+          api-key: ${{ secrets.INDIANA_API_KEY }} # ⚠️ UPDATE SECRET NAME: Use INDIANA_API_KEY, DC_API_KEY, or VA_LIS_API_KEY
 
   format:
     name: "📝 Format Data"
@@ -61,7 +62,7 @@ jobs:
           name: ${{ needs.scrape.outputs.scrape-artifact-name }}
 
       - name: Run formatter action
-        uses: windy-civi/toolkit/actions/format@main
+        uses: windy-civi/toolkit/actions/format@feat/api-key-support # ⚠️ TESTING: Change to @main after testing
         with:
           state: ${{ env.STATE_CODE }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
